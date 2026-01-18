@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>TRUSTLENS Dashboard</title>
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+    <div class="login-box">
+        <h2>Welcome, {{ username }}</h2>
+        <p>Paste a message to check if it is a scam</p>
+
+        <form method="POST">
+            <textarea name="message" rows="5" placeholder="Paste message here..." required></textarea>
+            <br><br>
+            <button type="submit">Check Message</button>
+        </form>
+
+        {% if result %}
+    <h3>Result: {{ result }}</h3>
+    <h3>Trust Score: {{ trust_score }} / 100</h3>
+{% endif %}
+
+        <br>
+        <button onclick="location.href='/logout'">Logout</button>
+    </div>
+</body>
+</html>
