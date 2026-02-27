@@ -2,18 +2,27 @@
 <html>
 <head>
     <title>TRUSTLENS Login</title>
-    <link rel="stylesheet" href="/static/style.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
 <body>
+
+<div class="auth-container">
     <div class="login-box">
+
         <h2>TRUSTLENS</h2>
         <p>AI Fraud Detection System</p>
 
         <form method="POST">
-            <input type="email" name="email" placeholder="Enter Email" required>
+            <input type="text" name="username" placeholder="Enter Username" required>
             <input type="password" name="password" placeholder="Enter Password" required>
             <button type="submit">Login</button>
         </form>
+
+        <br>
+        <a href="/register">Don't have an account? Register</a>
+
     </div>
+</div>
+
 </body>
 </html>

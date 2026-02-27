@@ -1,26 +1,28 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>TRUSTLENS Signup</title>
-    <link rel="stylesheet" href="/static/style.css">
+    <title>TRUSTLENS Register</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
 <body>
+
+<div class="auth-container">
     <div class="login-box">
+
         <h2>TRUSTLENS</h2>
-        <p>Create an account</p>
+        <p>Create your account</p>
 
         <form method="POST">
             <input type="text" name="username" placeholder="Enter Username" required>
-            <input type="email" name="email" placeholder="Enter Email" required>
             <input type="password" name="password" placeholder="Enter Password" required>
-
-            <button type="submit">Sign Up</button>
+            <button type="submit">Register</button>
         </form>
 
-        <p style="margin-top:10px;">
-            Already have an account?
-            <a href="/">Login</a>
-        </p>
+        <br>
+        <a href="/login">Already have an account? Login</a>
+
     </div>
+</div>
+
 </body>
 </html>

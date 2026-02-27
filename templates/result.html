@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>TRUSTLENS Analysis Report</title>
+    <meta charset="UTF-8">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <style>
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background: linear-gradient(135deg, #0f2027, #203a43, #2c5364);
+            color: #333;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 60px auto;
+            background: white;
+            padding: 40px;
+            border-radius: 20px;
+            box-shadow: 0 25px 50px rgba(0,0,0,0.4);
+            text-align: center;
+        }
+
+        .risk-low { color: #2ecc71; }
+        .risk-medium { color: #f39c12; }
+        .risk-high { color: #e74c3c; }
+
+        .glow-low { box-shadow: 0 0 40px rgba(46,204,113,0.5); }
+        .glow-medium { box-shadow: 0 0 40px rgba(243,156,18,0.5); }
+        .glow-high { box-shadow: 0 0 40px rgba(231,76,60,0.5); }
+
+        .module-box {
+            text-align: left;
+            margin-top: 30px;
+            padding: 20px;
+            background: #f4f6f8;
+            border-radius: 10px;
+        }
+
+        button {
+            width: 100%;
+            padding: 12px;
+            border: none;
+            border-radius: 8px;
+            background: #2c5364;
+            color: white;
+            font-size: 16px;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background: #203a43;
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="container
+{% if final_score >= 75 %}
+    glow-low
+{% elif final_score >= 40 %}
+    glow-medium
+{% else %}
+    glow-high
+{% endif %}
+">
+
+    <h2>🔍 TRUSTLENS Analysis Report</h2>
+    <hr>
+
+    <!-- Gauge Section -->
+    <div style="width:600px;margin:40px auto;position:relative;">
+        <canvas id="trustGauge"></canvas>
+
+        <div style="position:absolute;width:100%;text-align:center;bottom:-30px;">
+            <h1 id="scoreNumber" style="font-size:50px;margin:0;">0 / 100</h1>
+        </div>
+    </div>
+
+    <!-- Risk Label -->
+    {% if final_score >= 75 %}
+        <h3 class="risk-low">LOW RISK</h3>
+    {% elif final_score >= 40 %}
+        <h3 class="risk-medium">MEDIUM RISK</h3>
+    {% else %}
+        <h3 class="risk-high">HIGH RISK</h3>
+    {% endif %}
+
+    <!-- Module Breakdown -->
+    <div class="module-box">
+        <h3>📊 Module Breakdown</h3>
+        <p><b>Text Analysis (25%)</b>: {{ text_score }}</p>
+        <p><b>Image Analysis (30%)</b>: {{ image_score }}</p>
+        <p><b>Behaviour Analysis (45%)</b>: {{ behaviour_score }}</p>
+        {% if matches is defined %}
+            <p><b>Image Matches Found:</b> {{ matches }}</p>
+        {% endif %}
+    </div>
+
+    <br><br>
+
+    <a href="/dashboard">
+        <button>Analyze Another Website</button>
+    </a>
+
+    <br><br>
+
+    <a href="/logout">
+        <button style="background:#444;">Logout</button>
+    </a>
+
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<script>
+const finalScore = {{ final_score }};
+let animatedNeedle = 0;
+let animatedScore = 0;
+
+// ==================
+// Animated Counter
+// ==================
+function animateCounter() {
+    const display = document.getElementById("scoreNumber");
+    const increment = finalScore / 60;
+
+    const counter = setInterval(() => {
+        animatedScore += increment;
+        if (animatedScore >= finalScore) {
+            animatedScore = finalScore;
+            clearInterval(counter);
+        }
+        display.innerText = animatedScore.toFixed(1) + " / 100";
+    }, 20);
+}
+
+// ==================
+// ULTRA GAUGE PLUGIN
+// ==================
+const ultraGauge = {
+    id: 'ultraGauge',
+
+    afterDraw(chart) {
+
+        const {ctx} = chart;
+        const meta = chart.getDatasetMeta(0);
+
+        const centerX = meta.data[0].x;
+        const centerY = meta.data[0].y;
+        const radius = meta.data[0].outerRadius;
+
+        // =========================
+        // DRAW TICKS + NUMBERS
+        // =========================
+        ctx.save();
+
+        for (let i = 0; i <= 10; i++) {
+
+            const angle = Math.PI * (i / 10);  // 0 to π
+
+            const xStart = centerX + Math.cos(angle - Math.PI) * (radius - 15);
+            const yStart = centerY + Math.sin(angle - Math.PI) * (radius - 15);
+
+            const xEnd = centerX + Math.cos(angle - Math.PI) * (radius - 5);
+            const yEnd = centerY + Math.sin(angle - Math.PI) * (radius - 5);
+
+            ctx.beginPath();
+            ctx.moveTo(xStart, yStart);
+            ctx.lineTo(xEnd, yEnd);
+            ctx.lineWidth = 2;
+            ctx.strokeStyle = "#555";
+            ctx.stroke();
+
+            if (i % 2 === 0) {
+                const labelRadius = radius - 35;
+
+                const xText = centerX + Math.cos(angle - Math.PI) * labelRadius;
+                const yText = centerY + Math.sin(angle - Math.PI) * labelRadius;
+
+                ctx.font = "14px Arial";
+                ctx.fillStyle = "#222";
+                ctx.textAlign = "center";
+                ctx.textBaseline = "middle";
+                ctx.fillText(i * 10, xText, yText);
+            }
+        }
+
+        ctx.restore();
+
+        // =========================
+        // NEEDLE ANIMATION
+        // =========================
+
+        animatedNeedle += (finalScore - animatedNeedle) * 0.05;
+
+        const needleAngle = Math.PI * (animatedNeedle / 100);
+
+        ctx.save();
+        ctx.translate(centerX, centerY);
+        ctx.rotate(needleAngle - Math.PI);
+
+        // Glow by risk
+        if (finalScore < 40) ctx.shadowColor = "#e74c3c";
+        else if (finalScore < 75) ctx.shadowColor = "#f39c12";
+        else ctx.shadowColor = "#2ecc71";
+
+        ctx.shadowBlur = 20;
+
+        ctx.beginPath();
+        ctx.moveTo(0, 0);
+        ctx.lineTo(radius - 40, 0);
+        ctx.lineWidth = 6;
+        ctx.strokeStyle = "#111";
+        ctx.stroke();
+
+        ctx.restore();
+
+        // Center hub
+        ctx.beginPath();
+        ctx.arc(centerX, centerY, 12, 0, 2 * Math.PI);
+        ctx.fillStyle = "#111";
+        ctx.fill();
+
+        requestAnimationFrame(() => chart.draw());
+    }
+};
+
+// ==================
+// GRADIENT ARC
+// ==================
+const ctx = document.getElementById("trustGauge").getContext("2d");
+
+const gradient = ctx.createLinearGradient(0, 0, 600, 0);
+gradient.addColorStop(0, "#e74c3c");
+gradient.addColorStop(0.25, "#ff6b35");
+gradient.addColorStop(0.5, "#f1c40f");
+gradient.addColorStop(0.75, "#2ecc71");
+gradient.addColorStop(1, "#27ae60");
+
+new Chart(ctx, {
+    type: "doughnut",
+    data: {
+        datasets: [{
+            data: [100],
+            backgroundColor: [gradient],
+            borderWidth: 0
+        }]
+    },
+    options: {
+        rotation: -90,
+        circumference: 180,
+        cutout: "75%",
+        animation: {
+            duration: 1500
+        },
+        plugins: {
+            legend: { display: false },
+            tooltip: { enabled: false }
+        }
+    },
+    plugins: [ultraGauge]
+});
+
+animateCounter();
+</script>
+</body>
+</html>

@@ -7,16 +7,18 @@
 <body>
 
 <div class="dashboard-container">
-    <h2>Welcome, {{ session['user'] }}</h2>
-    <p>Enter a website URL to analyze trust level</p>
+
+    <h2>TRUSTLENS Dashboard</h2>
+    <p>Enter a website URL to analyze its trustworthiness.</p>
 
     <form action="/analyze" method="POST">
         <input type="text" name="url" placeholder="Enter website URL..." required>
-        <button type="submit">Analyze Website</button>
+        <button type="submit">Analyze</button>
     </form>
 
     <br>
-    <button onclick="location.href='/logout'">Logout</button>
+    <a href="/logout">Logout</a>
+
 </div>
 
 </body>

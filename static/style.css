@@ -1,35 +1,61 @@
+/* ===========================
+   GLOBAL STYLES
+=========================== */
+
 body {
+    margin: 0;
+    padding: 0;
+    font-family: Arial, sans-serif;
     background: linear-gradient(135deg, #0f2027, #203a43, #2c5364);
+    min-height: 100vh;
+    color: #333;
+}
+
+/* ===========================
+   CENTERED BOX (Login/Register)
+=========================== */
+
+.auth-container {
     height: 100vh;
     display: flex;
     justify-content: center;
     align-items: center;
-    font-family: Arial, sans-serif;
 }
 
 .login-box {
     background: white;
     padding: 30px;
-    width: 300px;
+    width: 320px;
     text-align: center;
     border-radius: 10px;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.3);
 }
 
 .login-box h2 {
-    margin-bottom: 5px;
+    margin-bottom: 10px;
 }
 
 .login-box p {
-    font-size: 12px;
+    font-size: 13px;
     color: gray;
     margin-bottom: 20px;
 }
+
+/* ===========================
+   INPUTS
+=========================== */
 
 input {
     width: 100%;
     padding: 10px;
     margin: 10px 0;
+    border: 1px solid #ccc;
+    border-radius: 5px;
 }
+
+/* ===========================
+   BUTTONS
+=========================== */
 
 button {
     width: 100%;
@@ -37,9 +63,38 @@ button {
     background: #2c5364;
     color: white;
     border: none;
+    border-radius: 5px;
     cursor: pointer;
+    font-weight: bold;
 }
 
 button:hover {
     background: #203a43;
+}
+
+/* ===========================
+   DASHBOARD CONTAINER
+=========================== */
+
+.dashboard-container {
+    max-width: 600px;
+    margin: 80px auto;
+    background: white;
+    padding: 30px;
+    border-radius: 10px;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.3);
+    text-align: center;
+}
+
+/* ===========================
+   RESULT BOX
+=========================== */
+
+.result-box {
+    max-width: 600px;
+    margin: 80px auto;
+    background: white;
+    padding: 30px;
+    border-radius: 10px;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.3);
 }
