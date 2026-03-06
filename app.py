@@ -1,297 +1,349 @@
 from flask import Flask, render_template, request, redirect, url_for, session
-import pickle
+import sqlite3
 import requests
 from bs4 import BeautifulSoup
 from urllib.parse import urljoin
-import sqlite3
-import instaloader
+import pickle
+import socket
 
-# ==========================================
-# APP INITIALIZATION
-# ==========================================
+# Import image module
+from image_module import image_trust_score
 
 app = Flask(__name__)
 app.secret_key = "trustlens_secret_key"
 
-# ==========================================
-# DATABASE SETUP
-# ==========================================
+
+# ==============================
+# DATABASE INITIALIZATION
+# ==============================
 
 def init_db():
     with sqlite3.connect("database.db") as conn:
         cursor = conn.cursor()
         cursor.execute("""
-            CREATE TABLE IF NOT EXISTS users (
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
-                username TEXT UNIQUE,
-                password TEXT
-            )
+        CREATE TABLE IF NOT EXISTS users(
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            username TEXT UNIQUE,
+            password TEXT
+        )
         """)
         conn.commit()
 
 init_db()
 
-# ==========================================
-# LOAD NLP MODEL
-# ==========================================
 
-with open("scam_model.pkl", "rb") as f:
+# ==============================
+# LOAD ML MODEL
+# ==============================
+
+with open("scam_model.pkl","rb") as f:
     model = pickle.load(f)
 
-with open("vectorizer.pkl", "rb") as f:
+with open("vectorizer.pkl","rb") as f:
     vectorizer = pickle.load(f)
 
-# ==========================================
+
+# ==============================
 # FETCH WEBSITE DATA
-# ==========================================
+# ==============================
 
 def fetch_website_data(url):
+
     try:
-        response = requests.get(url, timeout=10)
-        response.raise_for_status()
 
-        soup = BeautifulSoup(response.text, "html.parser")
+        headers = {"User-Agent":"Mozilla/5.0"}
 
-        for script in soup(["script", "style"]):
-            script.decompose()
+        response = requests.get(url,headers=headers,timeout=10)
 
-        text = soup.get_text(separator=" ")
+        soup = BeautifulSoup(response.text,"html.parser")
+
+        for tag in soup(["script","style","noscript"]):
+            tag.decompose()
+
+        text_parts = []
+
+        if soup.title:
+            text_parts.append(soup.title.get_text())
+
+        for p in soup.find_all("p"):
+            text_parts.append(p.get_text())
+
+        for h in soup.find_all(["h1","h2","h3"]):
+            text_parts.append(h.get_text())
+
+        text = " ".join(text_parts)
         text = " ".join(text.split())[:5000]
 
         images = []
+
         for img in soup.find_all("img"):
             src = img.get("src")
-            if src:
-                images.append(urljoin(url, src))
 
-        return text, images
+            if src:
+                images.append(urljoin(url,src))
+
+        return text,images
 
     except:
-        return "", []
+        return "",[]
 
-# ==========================================
-# BEHAVIOUR ANALYSIS (45%)
-# ==========================================
+
+# ==============================
+# BEHAVIOUR ANALYSIS
+# ==============================
 
 def behaviour_score(url):
-    score = 90
+
+    score = 100
 
     if not url.startswith("https"):
-        score -= 25
+        score -= 20
 
-    if len(url) > 75:
-        score -= 15
-
-    if url.count("-") > 3:
+    if len(url) > 80:
         score -= 10
 
-    suspicious_words = ["free", "win", "offer", "cheap", "prize", "money"]
+    if url.count("-") >= 4:
+        score -= 10
+
+    suspicious_words = [
+        "free","win","offer","cheap",
+        "gift","verify","login",
+        "update","account"
+    ]
+
     for word in suspicious_words:
         if word in url.lower():
             score -= 10
 
-    return max(score, 0)
-
-# ==========================================
-# IMAGE BACKTRACKING MODULE (30%)
-# ==========================================
-
-def extract_instagram_username(url):
-    return url.rstrip("/").split("/")[-1]
-
-def get_profile_pic(username):
     try:
-        L = instaloader.Instaloader()
-        profile = instaloader.Profile.from_username(L.context, username)
-        return profile.profile_pic_url
+        domain = url.split("//")[1].split("/")[0]
+        socket.gethostbyname(domain)
     except:
-        return None
+        score -= 20
 
-def calculate_image_trust(matches):
-    if matches == 0:
-        return 95
-    elif matches <= 3:
-        return 70
-    elif matches <= 6:
-        return 40
-    else:
-        return 15
+    return max(0,min(score,100))
 
-def simulate_reverse_image_search():
-    """
-    Demo-safe simulation.
-    Replace with real API if needed.
-    """
-    import random
-    return random.randint(0, 8)
 
-# ==========================================
+# ==============================
 # AUTH ROUTES
-# ==========================================
+# ==============================
 
-@app.route("/register", methods=["GET", "POST"])
+@app.route("/register",methods=["GET","POST"])
 def register():
-    error = None
 
     if request.method == "POST":
-        username = request.form["username"].strip()
-        password = request.form["password"].strip()
+
+        username = request.form["username"]
+        password = request.form["password"]
 
         try:
+
             with sqlite3.connect("database.db") as conn:
+
                 cursor = conn.cursor()
+
                 cursor.execute(
-                    "INSERT INTO users (username, password) VALUES (?, ?)",
-                    (username, password)
+                    "INSERT INTO users(username,password) VALUES (?,?)",
+                    (username,password)
                 )
+
                 conn.commit()
+
             return redirect(url_for("login"))
 
-        except sqlite3.IntegrityError:
-            error = "Username already exists."
+        except:
 
-    return render_template("register.html", error=error)
+            return render_template("register.html",error="Username already exists")
+
+    return render_template("register.html")
 
 
-@app.route("/login", methods=["GET", "POST"])
+@app.route("/login",methods=["GET","POST"])
 def login():
-    error = None
 
     if request.method == "POST":
-        username = request.form["username"].strip()
-        password = request.form["password"].strip()
+
+        username = request.form["username"]
+        password = request.form["password"]
 
         with sqlite3.connect("database.db") as conn:
+
             cursor = conn.cursor()
+
             cursor.execute(
                 "SELECT * FROM users WHERE username=? AND password=?",
-                (username, password)
+                (username,password)
             )
+
             user = cursor.fetchone()
 
         if user:
-            session["user"] = username
-            return redirect(url_for("dashboard"))
-        else:
-            error = "Invalid username or password"
 
-    return render_template("login.html", error=error)
+            session["user"] = username
+
+            return redirect(url_for("dashboard"))
+
+        else:
+
+            return render_template("login.html",error="Invalid username or password")
+
+    return render_template("login.html")
 
 
 @app.route("/logout")
 def logout():
+
     session.clear()
+
     return redirect(url_for("login"))
 
-# ==========================================
+
+# ==============================
 # MAIN ROUTES
-# ==========================================
+# ==============================
 
 @app.route("/")
 def home():
+
     return redirect(url_for("login"))
 
 
 @app.route("/dashboard")
 def dashboard():
+
     if "user" not in session:
+
         return redirect(url_for("login"))
+
     return render_template("index.html")
 
 
-@app.route("/analyze", methods=["POST"])
+# ==============================
+# WEBSITE ANALYSIS
+# ==============================
+
+@app.route("/analyze",methods=["POST"])
 def analyze():
 
     if "user" not in session:
         return redirect(url_for("login"))
 
-    url = request.form["url"].strip()
+    url = request.form["url"]
 
-    # Auto-fix URL if missing protocol
-    if not url.startswith(("http://", "https://")):
-         url = "https://" + url
+    if not url.startswith(("http://","https://")):
+        url = "https://" + url
 
-    text, images = fetch_website_data(url)
+    text,images = fetch_website_data(url)
 
-    # ==========================
-    # TEXT ANALYSIS (25%)
-    # ==========================
+    reasons = []
 
-    try:
+
+    # TEXT ANALYSIS
+
+    if text:
+
         vector = vectorizer.transform([text])
+
         probabilities = model.predict_proba(vector)[0]
+
         scam_prob = max(probabilities)
-        text_score = round(100 * (1 - scam_prob), 2)
-    except:
-        text_score = 50  # fallback
 
-    # ==========================
-    # IMAGE ANALYSIS (30%)
-    # ==========================
+        text_score = round(100*(1-scam_prob),2)
 
-    image_score = 60  # default neutral
-    matches = 0
-
-    if "instagram.com" in url:
-        username = extract_instagram_username(url)
-        profile_pic_url = get_profile_pic(username)
-
-        if profile_pic_url:
-            matches = simulate_reverse_image_search()
-            image_score = calculate_image_trust(matches)
+        if scam_prob > 0.7:
+            reasons.append("Text resembles scam patterns")
         else:
-            image_score = 30
+            reasons.append("Text appears legitimate")
+
     else:
-        image_count = len(images)
 
-        if image_count == 0:
-            image_score = 30
-        elif image_count < 3:
-            image_score = 60
-        else:
-            image_score = 85
+        text_score = 60
+        reasons.append("Text could not be analyzed")
 
-    # ==========================
-    # BEHAVIOUR ANALYSIS (45%)
-    # ==========================
+
+    # IMAGE ANALYSIS
+
+    image_score,image_reason = image_trust_score(url)
+
+    reasons.append(image_reason)
+
+
+    # BEHAVIOUR ANALYSIS
 
     behaviour = behaviour_score(url)
 
-    # ==========================
-    # FINAL WEIGHTED SCORE
-    # ==========================
+    if behaviour < 60:
+        reasons.append("Suspicious URL behaviour detected")
+    else:
+        reasons.append("URL structure appears normal")
+
+
+    # DANGEROUS DOMAIN CHECK
+
+    dangerous_tlds = [".xyz",".top",".click",".ru",".tk"]
+
+    for tld in dangerous_tlds:
+
+        if url.endswith(tld):
+
+            behaviour -= 30
+
+            reasons.append("High-risk domain extension detected")
+
+
+    # FINAL SCORE
 
     final_score = round(
-        text_score * 0.25 +
-        image_score * 0.30 +
-        behaviour * 0.45,
-        2
+
+        text_score*0.25 +
+
+        image_score*0.30 +
+
+        behaviour*0.45
+
+        ,2
     )
 
-    # ==========================
-    # RISK CLASSIFICATION
-    # ==========================
+    final_score = max(0,min(100,final_score))
 
-    if final_score >= 75:
+
+    # RISK LEVEL
+
+    if final_score >= 80:
+
         risk = "LOW RISK"
-    elif final_score >= 40:
+
+    elif final_score >= 50:
+
         risk = "MEDIUM RISK"
+
     else:
+
         risk = "HIGH RISK"
 
+
     return render_template(
+
         "result.html",
+
         final_score=final_score,
+
         text_score=text_score,
+
         image_score=image_score,
+
         behaviour_score=behaviour,
+
         risk=risk,
-        matches=matches
+
+        reasons=reasons
+
     )
 
-# ==========================================
+
+# ==============================
 # RUN SERVER
-# ==========================================
+# ==============================
 
 if __name__ == "__main__":
     app.run(debug=True)

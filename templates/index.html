@@ -2,22 +2,116 @@
 <html>
 <head>
     <title>TRUSTLENS Dashboard</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <meta charset="UTF-8">
+    <style>
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background: linear-gradient(135deg, #0f2027, #203a43, #2c5364);
+            color: #333;
+        }
+
+        .container {
+            max-width: 700px;
+            margin: 80px auto;
+            background: white;
+            padding: 40px;
+            border-radius: 20px;
+            box-shadow: 0 25px 50px rgba(0,0,0,0.4);
+            text-align: center;
+        }
+
+        h2 {
+            margin-bottom: 5px;
+        }
+
+        p.subtitle {
+            color: #666;
+            margin-bottom: 30px;
+        }
+
+        input {
+            width: 100%;
+            padding: 12px;
+            margin-top: 10px;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            font-size: 14px;
+        }
+
+        button {
+            width: 100%;
+            padding: 12px;
+            margin-top: 20px;
+            border: none;
+            border-radius: 8px;
+            background: #2c5364;
+            color: white;
+            font-size: 16px;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background: #203a43;
+        }
+
+        .logout-btn {
+            background: #444;
+            margin-top: 15px;
+        }
+
+        .error {
+            color: red;
+            margin-top: 15px;
+        }
+
+        .info-box {
+            margin-top: 30px;
+            background: #f4f6f8;
+            padding: 20px;
+            border-radius: 10px;
+            text-align: left;
+        }
+    </style>
 </head>
+
 <body>
 
-<div class="dashboard-container">
+<div class="container">
 
-    <h2>TRUSTLENS Dashboard</h2>
-    <p>Enter a website URL to analyze its trustworthiness.</p>
+    <h2>🔍 TRUSTLENS Dashboard</h2>
+    <p class="subtitle">
+        Analyze suspicious websites using AI-based trust evaluation.
+    </p>
 
+    {% if session.user %}
+        <p><b>Logged in as:</b> {{ session.user }}</p>
+    {% endif %}
+
+    <!-- Error Message -->
+    {% if error %}
+        <p class="error">{{ error }}</p>
+    {% endif %}
+
+    <!-- URL Form -->
     <form action="/analyze" method="POST">
-        <input type="text" name="url" placeholder="Enter website URL..." required>
-        <button type="submit">Analyze</button>
+        <input type="text" name="url" placeholder="Enter website URL (e.g., https://example.com)" required>
+        <button type="submit">Analyze Website</button>
     </form>
 
-    <br>
-    <a href="/logout">Logout</a>
+    <!-- System Explanation -->
+    <div class="info-box">
+        <h4>How TRUSTLENS Works:</h4>
+        <ul>
+            <li><b>Text Analysis (25%)</b> — Detects scam-related content using Machine Learning.</li>
+            <li><b>Image Analysis (30%)</b> — Evaluates image reuse patterns.</li>
+            <li><b>Behaviour Analysis (45%)</b> — Checks URL structure, HTTPS, DNS validity.</li>
+        </ul>
+    </div>
+
+    <form action="/logout">
+        <button class="logout-btn">Logout</button>
+    </form>
 
 </div>
 
