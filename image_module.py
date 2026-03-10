@@ -5,7 +5,12 @@ from PIL import Image
 import imagehash
 import sqlite3
 from io import BytesIO
+import pickle
+import cv2
+import numpy as np
 
+# Load ML image model
+image_ml_model = None
 
 # ===============================
 # Config
@@ -31,7 +36,7 @@ def extract_images(url):
 
         soup = BeautifulSoup(response.text, "html.parser")
 
-        for img in soup.find_all("img")[:5]:
+        for img in soup.find_all("img")[:8]:
 
             src = img.get("src")
 
@@ -75,6 +80,52 @@ def generate_hash(image):
 
     except Exception:
         return None
+
+
+# ===============================
+# ML Image Analysis
+# ===============================
+
+def ml_image_score(image):
+
+    if image_ml_model is None:
+        return 70
+
+    try:
+        img_array = np.array(image)
+        img_resized = cv2.resize(img_array, (128,128))
+        img_flat = img_resized.flatten().reshape(1,-1)
+
+        prediction = image_ml_model.predict(img_flat)[0]
+
+        if prediction == 1:
+            return 40
+        else:
+            return 80
+
+    except:
+        return 60
+
+
+# ===============================
+# Detect Watermark
+# ===============================
+
+def detect_watermark(image):
+
+    try:
+
+        img = np.array(image)
+
+        edges = cv2.Canny(img, 100, 200)
+
+        if edges.mean() > 50:
+            return True
+        else:
+            return False
+
+    except:
+        return False
 
 
 # ===============================
@@ -154,7 +205,12 @@ def calculate_image_score(match):
 
     return score, reason
 
+def calculate_hash_score(hash_value):
+    hash_score, reason = calculate_image_score(match)
 
+    ml_score = ml_image_score(image)
+
+    final_score = (hash_score + ml_score) / 2
 # ===============================
 # Main Image Trust Analysis
 # ===============================
@@ -185,9 +241,12 @@ def image_trust_score(url):
 
             match = search_hash_database(hash_value)
 
-            score, reason = calculate_image_score(match)
 
-            scores.append(score)
+            # watermark penalty
+            if detect_watermark(image):
+                final_score -= 10
+
+            scores.append(final_score)
             reasons.append(reason)
 
         if not scores:

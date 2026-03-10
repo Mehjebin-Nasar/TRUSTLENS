@@ -1,27 +1,20 @@
-import random
+import pickle
+
+model = pickle.load(open("scam_model.pkl","rb"))
+vectorizer = pickle.load(open("vectorizer.pkl","rb"))
 
 def text_trust_score(text):
 
-    suspicious_words = [
-        "shocking",
-        "breaking",
-        "secret",
-        "you won't believe",
-        "limited offer",
-        "click here",
-        "urgent",
-        "act now",
-        "free money",
-        "password"
-    ]
+    try:
 
-    score = 100
+        text_vector = vectorizer.transform([text])
 
-    for word in suspicious_words:
-        if word in text.lower():
-            score -= 20
+        prediction = model.predict(text_vector)[0]
 
-    if len(text) < 200:
-        score -= 20
+        if prediction == 1:
+            return 30   # suspicious
+        else:
+            return 85   # trustworthy
 
-    return max(0, min(score, 100))
+    except:
+        return 60

@@ -261,26 +261,28 @@ def analyze():
     avg_image_score = sum(image_scores) / len(image_scores) if image_scores else 50
 
     # behavior analysis
-    behavior_score = behavior_analysis(url)
+    behavior_score, behavior_reason = behavior_analysis(url)
 
     # final trust score
     final_score = (
-    0.4 * behavior_score +
+    0.45 * behavior_score +
     0.35 * text_score +
-    0.25 * avg_image_score
+    0.20 * avg_image_score
 )
     if final_score >= 75:
         label = "Low Risk"
     elif final_score >= 50:
-        label = "Suspicious"
+        label = "Medium Risk"
     else:
         label = "High Risk"
     return render_template(
-        "result.html",
-        text_score=text_score,
-        image_score=avg_image_score,
-        behavior_score=behavior_score,
-        final_score=final_score
-    )
+    "result.html",
+    text_score=text_score,
+    image_score=avg_image_score,
+    behavior_score=behavior_score,
+    behavior_reason=behavior_reason,
+    final_score=final_score,
+    label=label
+)
 if __name__ == "__main__":
     app.run(debug=True)

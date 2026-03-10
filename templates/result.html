@@ -89,19 +89,28 @@
         <h3 class="risk-high">HIGH RISK</h3>
     {% endif %}
 
+    <h2>Risk Level: {{ label }}</h2>
+
     <!-- Module Breakdown -->
     <div class="module-box">
-        <h3>📊 Module Breakdown</h3>
-        <p><b>Text Analysis (25%)</b>: {{ text_score }}</p>
-        <p><b>Image Analysis (30%)</b>: {{ image_score }}</p>
-        <p><b>Behaviour Analysis (45%)</b>: {{ behaviour_score }}</p>
-        {% if matches is defined %}
-            <p><b>Image Matches Found:</b> {{ matches }}</p>
-        {% endif %}
-    </div>
 
-    <br><br>
+    <h3>Analysis Details</h3>
 
+    <p><b>Text Analysis Score:</b> {{ text_score }}</p>
+    <p><b>Image Analysis Score:</b> {{ image_score }}</p>
+    <p><b>Behaviour Analysis Score:</b> {{ behavior_score }}</p>
+
+    <hr>
+
+    <h3>Behaviour Findings</h3>
+
+    <ul style="padding-left:20px;">
+        {% for reason in behavior_reason %}
+        <li>{{ reason }}</li>
+        {% endfor %}
+    </ul>
+
+</div>
     <a href="/dashboard">
         <button>Analyze Another Website</button>
     </a>
@@ -117,7 +126,9 @@
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
 <script>
+
 const finalScore = {{ final_score }};
+
 let animatedNeedle = 0;
 let animatedScore = 0;
 
@@ -153,14 +164,11 @@ const ultraGauge = {
         const centerY = meta.data[0].y;
         const radius = meta.data[0].outerRadius;
 
-        // =========================
-        // DRAW TICKS + NUMBERS
-        // =========================
         ctx.save();
 
         for (let i = 0; i <= 10; i++) {
 
-            const angle = Math.PI * (i / 10);  // 0 to π
+            const angle = Math.PI * (i / 10);
 
             const xStart = centerX + Math.cos(angle - Math.PI) * (radius - 15);
             const yStart = centerY + Math.sin(angle - Math.PI) * (radius - 15);
@@ -191,10 +199,6 @@ const ultraGauge = {
 
         ctx.restore();
 
-        // =========================
-        // NEEDLE ANIMATION
-        // =========================
-
         animatedNeedle += (finalScore - animatedNeedle) * 0.05;
 
         const needleAngle = Math.PI * (animatedNeedle / 100);
@@ -203,7 +207,6 @@ const ultraGauge = {
         ctx.translate(centerX, centerY);
         ctx.rotate(needleAngle - Math.PI);
 
-        // Glow by risk
         if (finalScore < 40) ctx.shadowColor = "#e74c3c";
         else if (finalScore < 75) ctx.shadowColor = "#f39c12";
         else ctx.shadowColor = "#2ecc71";
@@ -219,7 +222,6 @@ const ultraGauge = {
 
         ctx.restore();
 
-        // Center hub
         ctx.beginPath();
         ctx.arc(centerX, centerY, 12, 0, 2 * Math.PI);
         ctx.fillStyle = "#111";
@@ -229,9 +231,6 @@ const ultraGauge = {
     }
 };
 
-// ==================
-// GRADIENT ARC
-// ==================
 const ctx = document.getElementById("trustGauge").getContext("2d");
 
 const gradient = ctx.createLinearGradient(0, 0, 600, 0);
@@ -266,6 +265,7 @@ new Chart(ctx, {
 });
 
 animateCounter();
+
 </script>
 </body>
 </html>

@@ -10,18 +10,32 @@ def fetch_website_data(url):
 
         soup = BeautifulSoup(response.text, "html.parser")
 
-        # Extract text content
-        text = soup.get_text()
+        # Remove scripts and styles
+        for tag in soup(["script", "style", "noscript"]):
+            tag.decompose()
+
+        # Extract important text
+        text_parts = []
+
+        if soup.title:
+            text_parts.append(soup.title.get_text())
+
+        for p in soup.find_all("p"):
+            text_parts.append(p.get_text())
+
+        for h in soup.find_all(["h1", "h2", "h3"]):
+            text_parts.append(h.get_text())
+
+        text = " ".join(text_parts)
 
         # Extract images
         images = []
 
-        for img in soup.find_all("img"):
+        for img in soup.find_all("img")[:8]:
             src = img.get("src")
 
             if src:
-                full_url = urljoin(url, src)
-                images.append(full_url)
+                images.append(urljoin(url, src))
 
         return text, images
 
