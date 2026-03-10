@@ -1,0 +1,367 @@
+<!DOCTYPE html>
+
+<html lang="en">
+  <head>
+  <meta charset="UTF-8">
+  <link rel="shortcut icon" href="/assets/img/mediaeval-favicon.png" type="image/png">
+  <!--Import Google Icon Font-->
+  <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+  <!--Import materialize.css-->
+  <link type="text/css" rel="stylesheet" href="/assets/css/materialize.min.css"  media="screen,projection"/>
+  <link type="text/css" rel="stylesheet" href="/assets/css/main.css"  media="screen,projection"/>
+  <!-- Add icon library -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+  <!--Let browser know website is optimized for mobile-->
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta name="twitter:card" content="summary" /> <!--<meta name="twitter:card" content="summary_large_image" />-->
+  <meta name="twitter:image" content="https://multimediaeval.github.io/assets/img/twitter-card-summary.png"/>
+  <meta name="twitter:image:alt" content="Picture of group of people participants of the 2019 MediaEval workshop"/>
+
+  <!-- Global site tag (gtag.js) - Google Analytics -->
+  
+
+  <!-- seo tags -->
+  <!-- Begin Jekyll SEO tag v2.8.0 -->
+<title>Sport Task: Fine Grained Action Detection and Classification of Table Tennis Strokes from Videos. | MediaEval Benchmark</title>
+<meta name="generator" content="Jekyll v3.9.2" />
+<meta property="og:title" content="Sport Task: Fine Grained Action Detection and Classification of Table Tennis Strokes from Videos." />
+<meta property="og:locale" content="en_US" />
+<meta name="description" content="See the MediaEval 2022 webpage for information on how to register and participate." />
+<meta property="og:description" content="See the MediaEval 2022 webpage for information on how to register and participate." />
+<link rel="canonical" href="https://multimediaeval.github.io/editions/2022/tasks/sportsvideo/" />
+<meta property="og:url" content="https://multimediaeval.github.io/editions/2022/tasks/sportsvideo/" />
+<meta property="og:site_name" content="MediaEval Benchmark" />
+<meta property="og:image" content="https://multimediaeval.github.io/assets/img/twitter-card.png" />
+<meta property="og:type" content="article" />
+<meta property="article:published_time" content="2026-03-06T08:28:47+00:00" />
+<meta name="twitter:card" content="summary_large_image" />
+<meta property="twitter:image" content="https://multimediaeval.github.io/assets/img/twitter-card.png" />
+<meta property="twitter:title" content="Sport Task: Fine Grained Action Detection and Classification of Table Tennis Strokes from Videos." />
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"BlogPosting","dateModified":"2026-03-06T08:28:47+00:00","datePublished":"2026-03-06T08:28:47+00:00","description":"See the MediaEval 2022 webpage for information on how to register and participate.","headline":"Sport Task: Fine Grained Action Detection and Classification of Table Tennis Strokes from Videos.","image":"https://multimediaeval.github.io/assets/img/twitter-card.png","mainEntityOfPage":{"@type":"WebPage","@id":"https://multimediaeval.github.io/editions/2022/tasks/sportsvideo/"},"url":"https://multimediaeval.github.io/editions/2022/tasks/sportsvideo/"}</script>
+<!-- End Jekyll SEO tag -->
+
+  <!-- Manual seo tags -->
+
+</head>
+
+  <body>
+
+    <div>
+    
+
+
+
+
+<div class="navbar-fixed">
+  <nav>
+    <div class="nav-wrapper green darken-4">
+      <a href="/" class="brand-logo" style="padding-left: 20px">
+        <h3 class="northumbria" style="margin-top: 20px;color:white;">Mediaeval</h3>
+      </a>
+      <!-- Small screen definition -->
+      <a href="#" data-target="mobile-nav" class="sidenav-trigger">
+        <i class="material-icons" style="color:white;">menu</i>
+      </a>
+      <!-- Big screen Structure -->
+      <ul class="materialize right hide-on-med-and-down">
+        <li><a href="/"><i class="material-icons" style="color:white;">home</i></a></li>
+        
+          <li><a href="/editions/2026/" style="color:white;">MediaEval 2026</a></li>
+        
+        
+          
+            
+              <li><a class="dropdown-trigger" data-target="editions" style="color:white;">
+                MediaEval History<i class="material-icons right">arrow_drop_down</i>
+              </a></li>
+            
+          
+        
+          
+            
+                <li><a href="/philosophy/" style="color:white;">MediaEval Philosophy</a></li>
+            
+          
+        
+          
+            
+                <li><a href="/about/" style="color:white;">About MediaEval</a></li>
+            
+          
+        
+          
+            
+                <li><a href="/bib/" style="color:white;">Bibliography</a></li>
+            
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+      </ul>
+    </div>
+  </nav>
+</div>
+
+<!-- Big screen dropdown Structure -->
+<ul class="dropdown-content materialize" id="editions">
+  
+  <li><a href="/editions/2025/">MediaEval 2025</a></li>
+  
+  <li><a href="/editions/2023/">MediaEval 2023</a></li>
+  
+  <li><a href="/editions/2022/">MediaEval 2022</a></li>
+  
+  <li><a href="/editions/2021/">MediaEval 2021</a></li>
+  
+  <li><a href="/editions/2020/">MediaEval 2020</a></li>
+  
+  <li><a href="http://www.multimediaeval.org/" target="_blank">pre-2020</a></li>
+</ul>
+
+<!-- Mobile Structure -->
+<ul class="materialize sidenav green darken-4" id="mobile-nav">
+  <li><a href="/" style="color:white;">Home</a></li>
+  
+  <li><a href="/editions/2026/" style="color:white;">MediaEval 2026</a></li>
+  
+  
+    
+      
+  <li><a class="dropdown-trigger" data-target="mobile-editions" style="color:white;">
+    MediaEval History<i class="material-icons right" style="color:white;">arrow_drop_down</i>
+  </a></li>
+      
+    
+  
+    
+      
+  <li><a href="/philosophy/" style="color:white;">MediaEval Philosophy</a></li>
+      
+    
+  
+    
+      
+  <li><a href="/about/" style="color:white;">About MediaEval</a></li>
+      
+    
+  
+    
+      
+  <li><a href="/bib/" style="color:white;">Bibliography</a></li>
+      
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+</ul>
+
+<!-- Mobile dropdown Structure -->
+<ul class="dropdown-content materialize" id="mobile-editions">
+  
+  <li><a href="/editions/2025/">MediaEval 2025</a></li>
+  
+  <li><a href="/editions/2023/">MediaEval 2023</a></li>
+  
+  <li><a href="/editions/2022/">MediaEval 2022</a></li>
+  
+  <li><a href="/editions/2021/">MediaEval 2021</a></li>
+  
+  <li><a href="/editions/2020/">MediaEval 2020</a></li>
+  
+  <li><a href="http://www.multimediaeval.org/" target="_blank">pre-2020</a></li>
+</ul>
+
+</div>
+
+    
+
+    <div class="container">
+      <div class="row">
+          <header id="main" style="background-image: url('')">
+    <h2>Sport Task: Fine Grained Action Detection and Classification of Table Tennis Strokes from Videos.</h2>
+  </header>
+
+  <!-- # please respect the structure below-->
+<p><em>See the <a href="https://multimediaeval.github.io/editions/2022/">MediaEval 2022 webpage</a> for information on how to register and participate.</em></p>
+
+<h4 id="task-description">Task Description</h4>
+
+<p>Action detection and classification are one of the main challenges in visual content analysis and mining. Sport video analysis has been a very popular research topic, due to the variety of application areas, ranging from analysis of athletes’ performances and rehabilitation to multimedia intelligent devices with user-tailored digests. Datasets focused on sports activities or datasets including a large number of sport activity classes are now available and many research contributions benchmark on those datasets. A large amount of work is also devoted to fine-grained classification through the analysis of sport gestures using motion capture systems. However, body-worn sensors and markers could disturb the natural behavior of sports players. Furthermore, motion capture devices are not always available for potential users, be it a university facility or a local sport team. Giving end-users the possibility to monitor their physical activities in ecological conditions through simple equipment is a challenging issue. The ultimate goal of this research is to produce automatic annotation tools for sport faculties, local clubs and associations to help coaches to better assess and advise athletes during training.</p>
+
+<p>This task offers researchers an opportunity to test their fine-grain action classification methods for detecting and recognizing strokes in table tennis videos. The low inter-class variability makes the task more difficult than with more general action recognition datasets like UCF-101 or Kinetics.</p>
+
+<!-- Running since 2019, this task was focused during the first two years on classification of temporally segmented videos of single table tennis strokes.
+Since the third edition of the task, two subtasks have been proposed. The dataset also has been enriched this year with new and more diverse stroke samples.-->
+
+<ul>
+  <li>
+    <p><em>Subtask 1: Classification task:</em> Participants are required to build a classification system that automatically labels video segments according to a performed stroke. There are 20 possible stroke classes and an additional non-stroke class.</p>
+  </li>
+  <li>
+    <p><em>Subtask 2: Detection task:</em> Participants are required to detect if a stroke has been performed, whatever its class, and to extract its temporal boundaries. The aim is to be able to distinguish between moments of interest in a game (players performing strokes) from irrelevant moments (picking up the ball, having a break…). This subtask can be a preliminary step for later recognizing a stroke that has been performed.</p>
+  </li>
+</ul>
+
+<p>The organizers encourage the use of the method developed for Subtask 1 to solve Subtask 2. Participants are also invited to use the <a href="https://github.com/ccp-eva/SportTaskME22">provided baseline</a> as a starting point in their investigation.</p>
+
+<h4 id="motivation-and-background">Motivation and background</h4>
+<p>The task aims at providing tools for athletes in order to analyze their performance. The fine-grained character of the classification subtask and the precision of the segmentation subtask applied to the TTStroke-21 dataset make the Sport task more challenging than common action classification task applied to other widely used dataset.</p>
+
+<p>The focus of the sport task is table tennis. This choice was made for practical and technical reasons, and for the short term use of the technology that may be built upon the developed methods. The STAPS of the University of Bordeaux has a very talented team in this particular sport and agreed to contribute in the data acquisition and their annotation. The proximity of the computer science laboratory LaBRI made such collaboration possible and now focuses on developing tools of interest for the same sport faculty and the sport community in general.</p>
+
+<p>Our team has a limited time to maintain the TTStroke-21 dataset, and errors may remain in the annotations and ground truth data. Furthermore, some specific strokes are not largely used by the players who took part in the creation of the dataset and will remain low in number, despite the different variations of the dataset that have been released.</p>
+
+<h4 id="target-group">Target group</h4>
+<p>The task is of interest to researchers in the areas of machine learning (classification), visual content analysis, computer vision and sport performance. We explicitly encourage researchers focusing specifically in domains of computer-aided analysis of sport performance.</p>
+
+<h4 id="data">Data</h4>
+<p>Our focus is on recordings that have been made by widespread and cheap video cameras, e.g. GoPro. We use a dataset specifically recorded at a sport faculty facility and continuously completed by students and teachers. This dataset is constituted of player-centered videos recorded in natural conditions without markers or sensors. It comprises 20 table 
+strokes, and a rejection class. The problem is hence a typical research topic in the field of video indexing: for a given recording, we need to label the video by recognizing each stroke appearing in it.</p>
+
+<h4 id="ground-truth">Ground truth</h4>
+<p>The annotations consist in a description of the handedness of the player and information for each stroke performed (starting and ending frames, class of the stroke). The annotation process was designed as a crowdsourcing method. The annotation sessions are supervised by professional table tennis players and teachers, where the annotator spots and labels strokes in videos using a user-friendly web platform developed. We had a team of 15 annotators, professionals in the field of table tennis.
+Since a video can be annotated by several annotators, stroke detection according to the annotations was necessary. Our dataset is player-centered, with only one player in each video. An overlap between each annotation of 25% of the annotated stroke duration is allowed. Indeed, during matches with fast exchanges, the boundaries between strokes are hard to determine and annotators would sometimes overlap the annotations between two successive strokes.</p>
+
+<h4 id="evaluation-methodology">Evaluation methodology</h4>
+<p>Twenty stroke classes and a non-stroke class are considered according to the rules of table tennis. This taxonomy was designed with professional table tennis teachers. We are working on videos recorded at the Faculty of Sports of the University of Bordeaux. Students are the sportsmen filmed and the teachers are supervising exercises conducted during the recording sessions. The recordings are markerless and allow the players to perform in natural conditions.</p>
+
+<p><strong>Subtask 1:</strong> for the classification subtask the table tennis videos are trimmed. The trimmed videos are distributed across the considered classes in the train and validation sets. A test set is provided without the distribution information. The participants are asked to fill an xml file with the prediction of their classification model. Submissions will be evaluated in terms of accuracy per class and global accuracy.</p>
+
+<p><strong>Subtask 2:</strong> for the detection subtask, supplementary videos are provided untrimmed and distributed across train, validation and test sets. For the train and validation sets, the temporal boundaries of the performed strokes are supplied in an xml file. The participants are asked to fill the empty xml files dedicated to the test video with the stroke boundaries inferred by their method. The IoU metric on temporal segments will be used for evaluation.</p>
+
+<h4 id="quest-for-insight">Quest for insight</h4>
+<p>Here are several research questions related to this challenge that participants can strive to answer in order to go beyond just looking at the evaluation metrics:</p>
+<ul>
+  <li>Is RGB information alone is enough to obtain correct classification and detection performance? If not, what else should be used?</li>
+  <li>How to use the solution of Subtask 1 to answer Subtask 2?</li>
+  <li>Which strokes are the most similar?</li>
+  <li>How transferable are the computed features from one subtask to another?</li>
+</ul>
+
+<h4 id="participant-information">Participant information</h4>
+<p>Please contact your task organizers with any questions on these points.</p>
+<ul>
+  <li>Signing up: Fill in the <a href="https://forms.gle/JcKoa5ycxR2KEiTJ7">registration form</a> and fill out and return the <a href="https://multimediaeval.github.io/editions/2022/docs/MediaEval2022_UsageAgreement.pdf">usage agreement</a>.</li>
+  <li>Making your submission: To be announced (check the task read me) <!-- Please add instructions on how to create and submit runs to your task replacing "To be announced." --></li>
+  <li>Preparing your working notes paper: Instructions on preparing you working notes paper can be found in <a href="https://docs.google.com/document/d/12uSn0rRYxa3buiFNEbpa46dKsHOyqV2PHU_joRGMHRw">MediaEval 2022 Working Notes Paper Instructions</a>.</li>
+</ul>
+
+<h4 id="references-and-recommended-reading">References and recommended reading</h4>
+<p><a href="https://github.com/P-eMartin/crisp">The CRISP Project page</a></p>
+
+<p>Pierre-Etienne Martin, Jenny Benois-Pineau, Renaud Péteri, Julien Morlier. <a href="https://arxiv.org/abs/2109.14306">Three-Stream 3D/1D CNN for Fine-Grained Action Classification and Segmentation in Table Tennis</a>.
+4th International ACM Workshop on Multimedia Content Analysis in Sports, ACM Multimedia, Oct 2021, Chengdu, China.</p>
+
+<p>Kaustubh Milind Kulkarni, Sucheth Shenoy: <a href="https://openaccess.thecvf.com/content/CVPR2021W/CVSports/papers/Kulkarni_Table_Tennis_Stroke_Recognition_Using_Two-Dimensional_Human_Pose_Estimation_CVPRW_2021_paper.pdf">Table Tennis Stroke Recognition Using Two-Dimensional Human Pose Estimation</a>. CVPR Workshops 2021: 4576-4584.</p>
+
+<p>Pierre-Etienne Martin, Jenny Benois-Pineau, Renaud Péteri, Julien Morlier. <a href="https://link.springer.com/epdf/10.1007/s11042-020-08917-3">Fine grained sport action recognition with siamese spatio-temporal convolutional neural networks.</a> Multimedia Tools and Applications, vol. 79, 20429–20447, Springer (2020).</p>
+
+<p>Extended work in: Pierre-Etienne Martin. <a href="https://hal.archives-ouvertes.fr/tel-03099907">Fine-Grained Action Detection and Classification from Videos with Spatio-Temporal Convolutional Neural Networks. Application to Table Tennis.</a> Neural and Evolutionary Computing [cs.NE]. Université de Bordeaux; Université de la Rochelle, 2020.</p>
+
+<p>Gül Varol, Ivan Laptev, and Cordelia Schmid. <a href="https://arxiv.org/pdf/1604.04494.pdf">Long-Term Temporal Convolutions for Action Recognition.</a> IEEE Trans. Pattern Anal. Mach. Intell. 40, 6 (2018), 1510–1517.</p>
+
+<p>Joao Carreira and Andrew Zisserman. <a href="https://arxiv.org/pdf/1705.07750.pdf">Quo Vadis, Action Recognition? A New Model and the Kinetics Dataset.</a> CoRR abs/1705.07750 (2017).</p>
+
+<p>Chunhui Gu, Chen Sun, Sudheendra Vijayanarasimhan, Caroline Pantofaru, David A. Ross, George Toderici, Yeqing Li, Susanna Ricco, Rahul Sukthankar, Cordelia Schmid, and Jitendra Malik. <a href="http://openaccess.thecvf.com/content_cvpr_2018/papers/Gu_AVA_A_Video_CVPR_2018_paper.pdf">AVA: A Video Dataset of Spatio-temporally Localized Atomic Visual Actions.</a> CoRR abs/1705.08421 (2017).</p>
+
+<p>Khurram Soomro, Amir Roshan Zamir, and Mubarak Shah. <a href="https://arxiv.org/pdf/1212.0402.pdf">UCF101: A dataset of 101 hu- man actions classes from videos in the wild.</a> CoRR 1212.0402 (2012).</p>
+
+<h4 id="task-organizers">Task organizers</h4>
+<p>You can email us directly at <img src="https://user-images.githubusercontent.com/36887778/172356270-93a36d42-1950-43c7-be24-d6f349017b82.png" alt="" />.</p>
+<ul>
+  <li>Jordan Calandre, MIA, University of La Rochelle, La Rochelle, France</li>
+  <li>Pierre-Etienne Martin, Max Planck Institute for Evolutionary Anthropology, CCP Department, Leipzig, Germany</li>
+  <li>Boris Mansencal, Univ. Bordeaux, CNRS, Bordeaux INP, LaBRI, UMR 5800, F-33400, Talence, France</li>
+  <li>Jenny Benois-Pineau, Univ. Bordeaux, CNRS, Bordeaux INP, LaBRI, UMR 5800, F-33400, Talence, France</li>
+  <li>Renaud Péteri, MIA, University of La Rochelle, La Rochelle, France</li>
+  <li>Julien Morlier, IMS, University of Bordeaux, Talence, France</li>
+  <li>Laurent Mascarilla, MIA, University of La Rochelle, La Rochelle, France</li>
+</ul>
+
+<h4 id="task-schedule">Task Schedule</h4>
+<ul>
+  <li>June 2022: Data released <!-- # Replace XX with your date. We suggest setting the date in June-July. 31 July is the last possible date by which you should release data. You can release earlier, or plan a two-stage release.--></li>
+  <li><del>8 November 2022</del> 23 November 2022: Runs due <!-- # Replace XX with your date. We suggest setting enough time in order to have enough time to assess and return the results by the Results returned.--></li>
+  <li><del>10 November 2022</del> 23 November 2022: Results returned  <!-- Replace XX with your date. Latest possible should be 23 November--></li>
+  <li>28 November 2022: Working notes paper  <!-- Fixed. Please do not change.--></li>
+  <li>12-13 January 2023: 13th Annual MediaEval Workshop, Collocated with <a href="https://www.mmm2023.no/">MMM 2023</a> in Bergen, Norway and also online. <!-- Fixed. Please do not change.--></li>
+</ul>
+
+
+
+      </div>
+    </div>
+
+    
+<footer class='page-footer green darken-4'>
+  <div class='container'>
+
+    <div class='row'>
+      <div class="col l6 s12">
+        <h5 class="white-text">What is MediaEval?</h5>
+        <p>MediaEval is a benchmarking initiative dedicated to evaluating new algorithms for multimedia access and retrieval. 
+          It emphasizes the ‘multi’ in multimedia and focuses on human and social aspects of multimedia tasks.</p>
+
+        <p>For more information contact Martha Larson m.larson (at) cs.ru.nl</p>
+      </div>
+      <div class="col l4 offset-l2 s12">
+        <h5 class="white-text">Links</h5>
+        <a href='https://twitter.com/multimediaeval' target="_blank">
+          <i class="fa fa-twitter fa-3x" aria-hidden="true" style="color:white;"></i>
+        </a>
+        <a href='https://github.com/multimediaeval' target="_blank">
+          <i class="fa fa-github fa-3x" aria-hidden="true" style="color:white;"></i>
+        </a>
+        <a href='https://www.flickr.com/photos/69524595@N06/' target="_blank">
+          <i class="fa fa-flickr fa-3x" aria-hidden="true" style="color:white;"></i>
+        </a>
+        <a href='https://www.youtube.com/channel/UCc-1NW1Uo2o_zI4F81iyTcw' target="_blank">
+          <i class="fa fa-youtube fa-3x" aria-hidden="true" style="color:white;"></i>
+        </a>
+      </div>
+    </div>
+
+  </div>
+    <div class="footer-copyright">
+      <div class="container grey-text text-lighten-4">
+      &copy; 2020 MediaEval Multimedia Benchmark
+    </div>
+  </div>
+</footer>
+
+
+    <!--JavaScript at end of body for optimized loading-->
+    <script type="text/javascript" src="/assets/js/materialize.min.js"></script>
+    <script type="text/javascript" src="/assets/js/main.js"></script>
+  </body>
+
+</html>

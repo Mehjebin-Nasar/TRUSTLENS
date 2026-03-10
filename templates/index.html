@@ -94,9 +94,12 @@
     {% endif %}
 
     <!-- URL Form -->
-    <form action="/analyze" method="POST">
-        <input type="text" name="url" placeholder="Enter website URL (e.g., https://example.com)" required>
-        <button type="submit">Analyze Website</button>
+    <form action="/upload" method="POST" enctype="multipart/form-data">
+
+    <input type="file" name="image">
+
+    <button type="submit">Upload</button>
+
     </form>
 
     <!-- System Explanation -->

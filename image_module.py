@@ -2,12 +2,24 @@ import requests
 from bs4 import BeautifulSoup
 from urllib.parse import urljoin
 from PIL import Image
-from io import BytesIO
 import imagehash
+import sqlite3
+from io import BytesIO
 
 
 # ===============================
-# Extract Images
+# Config
+# ===============================
+
+DB_PATH = "database.db"
+
+HEADERS = {
+    "User-Agent": "Mozilla/5.0"
+}
+
+
+# ===============================
+# Extract Images From Website
 # ===============================
 
 def extract_images(url):
@@ -15,26 +27,22 @@ def extract_images(url):
     images = []
 
     try:
-        headers = {"User-Agent": "Mozilla/5.0"}
-
-        response = requests.get(url, headers=headers, timeout=10)
+        response = requests.get(url, headers=HEADERS, timeout=10)
 
         soup = BeautifulSoup(response.text, "html.parser")
 
-        for img in soup.find_all("img"):
+        for img in soup.find_all("img")[:5]:
 
             src = img.get("src")
 
             if src:
-
                 full_url = urljoin(url, src)
-
                 images.append(full_url)
 
-    except:
+    except Exception:
         pass
 
-    return images[:6]
+    return images[:5]
 
 
 # ===============================
@@ -45,93 +53,149 @@ def download_image(url):
 
     try:
 
-        response = requests.get(url, timeout=10)
+        response = requests.get(url, headers=HEADERS, timeout=8)
 
-        image = Image.open(BytesIO(response.content))
+        if response.status_code == 200:
+            return Image.open(BytesIO(response.content)).convert("RGB")
 
-        return image
+    except Exception:
+        pass
 
-    except:
-
-        return None
+    return None
 
 
 # ===============================
-# Generate Image Hash
+# Generate Perceptual Hash
 # ===============================
 
 def generate_hash(image):
 
     try:
-
         return imagehash.phash(image)
 
-    except:
-
+    except Exception:
         return None
 
 
 # ===============================
-# Detect Reused Images
+# Search Image Hash Database
 # ===============================
 
-def detect_reused_images(images):
+def search_hash_database(hash_value):
 
-    hashes = []
-    duplicates = 0
+    conn = sqlite3.connect(DB_PATH)
+    cursor = conn.cursor()
 
-    for img_url in images:
+    try:
 
-        image = download_image(img_url)
+        cursor.execute("SELECT hash, source, trust_level FROM image_hashes")
+        rows = cursor.fetchall()
 
-        if image:
+        best_match = None
+        lowest_distance = 100
 
-            h = generate_hash(image)
+        for db_hash, source, trust in rows:
 
-            if h in hashes:
-                duplicates += 1
-            else:
-                hashes.append(h)
+            try:
 
-    return duplicates
+                db_hash = imagehash.hex_to_hash(db_hash)
+                distance = hash_value - db_hash
+
+                if distance < lowest_distance:
+
+                    lowest_distance = distance
+                    best_match = (source, trust, distance)
+
+            except Exception:
+                continue
+
+        return best_match
+
+    finally:
+        conn.close()
 
 
 # ===============================
-# Image Trust Score
+# Calculate Trust Score
+# ===============================
+
+def calculate_image_score(match):
+
+    base_score = 70
+
+    if not match:
+        return base_score, "Image not found in database"
+
+    source, trust, distance = match
+
+    if distance <= 5:
+        similarity = "very similar"
+    elif distance <= 10:
+        similarity = "similar"
+    else:
+        return base_score, "Image appears unique"
+
+    if trust == "trusted":
+
+        score = base_score + 20
+        reason = f"Image {similarity} to trusted source ({source})"
+
+    elif trust == "scam":
+
+        score = base_score - 30
+        reason = f"Image {similarity} to known scam dataset"
+
+    else:
+
+        score = base_score
+        reason = "Image source uncertain"
+
+    score = max(0, min(score, 100))
+
+    return score, reason
+
+
+# ===============================
+# Main Image Trust Analysis
 # ===============================
 
 def image_trust_score(url):
 
-    images = extract_images(url)
+    try:
 
-    image_count = len(images)
+        images = extract_images(url)
 
-    if image_count == 0:
+        if not images:
+            return 70, "No images detected"
 
-        return 50, "No images found on the page"
+        scores = []
+        reasons = []
 
-    duplicates = detect_reused_images(images)
+        for img_url in images:
 
-    # scoring logic
+            image = download_image(img_url)
 
-    if duplicates >= 3:
+            if not image:
+                continue
 
-        return 35, "Multiple duplicated images detected"
+            hash_value = generate_hash(image)
 
-    elif duplicates >= 1:
+            if not hash_value:
+                continue
 
-        return 55, "Some reused images detected"
+            match = search_hash_database(hash_value)
 
-    # now adjust score based on structure
+            score, reason = calculate_image_score(match)
 
-    if image_count <= 2:
+            scores.append(score)
+            reasons.append(reason)
 
-        return 60, "Very few images on page"
+        if not scores:
+            return 65, "Images could not be analyzed"
 
-    elif image_count <= 5:
+        avg_score = sum(scores) / len(scores)
 
-        return 75, "Normal image structure"
+        return round(avg_score, 2), reasons[0]
 
-    else:
-
-        return 90, "Rich image structure detected"
+    except Exception:
+        return 60, "Image analysis failed"

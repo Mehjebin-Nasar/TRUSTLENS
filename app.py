@@ -5,32 +5,37 @@ from bs4 import BeautifulSoup
 from urllib.parse import urljoin
 import pickle
 import socket
-
-# Import image module
+import os
+from scraper import fetch_website_data
+from text_module import text_trust_score
 from image_module import image_trust_score
-
+from behavior_module import behavior_analysis
 app = Flask(__name__)
 app.secret_key = "trustlens_secret_key"
 
+# ensure upload folder exists
+os.makedirs("static/uploads", exist_ok=True)
 
 # ==============================
 # DATABASE INITIALIZATION
 # ==============================
 
 def init_db():
-    with sqlite3.connect("database.db") as conn:
-        cursor = conn.cursor()
-        cursor.execute("""
-        CREATE TABLE IF NOT EXISTS users(
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            username TEXT UNIQUE,
-            password TEXT
-        )
-        """)
-        conn.commit()
+    conn = sqlite3.connect("database.db")
+    cursor = conn.cursor()
+
+    cursor.execute("""
+    CREATE TABLE IF NOT EXISTS users(
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        username TEXT UNIQUE,
+        password TEXT
+    )
+    """)
+
+    conn.commit()
+    conn.close()
 
 init_db()
-
 
 # ==============================
 # LOAD ML MODEL
@@ -42,7 +47,6 @@ with open("scam_model.pkl","rb") as f:
 with open("vectorizer.pkl","rb") as f:
     vectorizer = pickle.load(f)
 
-
 # ==============================
 # FETCH WEBSITE DATA
 # ==============================
@@ -52,7 +56,6 @@ def fetch_website_data(url):
     try:
 
         headers = {"User-Agent":"Mozilla/5.0"}
-
         response = requests.get(url,headers=headers,timeout=10)
 
         soup = BeautifulSoup(response.text,"html.parser")
@@ -78,15 +81,13 @@ def fetch_website_data(url):
 
         for img in soup.find_all("img"):
             src = img.get("src")
-
             if src:
                 images.append(urljoin(url,src))
 
-        return text,images
+        return text, images
 
     except:
-        return "",[]
-
+        return "", []
 
 # ==============================
 # BEHAVIOUR ANALYSIS
@@ -97,32 +98,32 @@ def behaviour_score(url):
     score = 100
 
     if not url.startswith("https"):
-        score -= 20
+        score -= 40
 
     if len(url) > 80:
-        score -= 10
+        score -= 15
 
-    if url.count("-") >= 4:
-        score -= 10
+    if url.count("-") >= 3:
+        score -= 20
 
     suspicious_words = [
         "free","win","offer","cheap",
         "gift","verify","login",
-        "update","account"
+        "update","account","bonus",
+        "claim","reward"
     ]
 
     for word in suspicious_words:
         if word in url.lower():
-            score -= 10
+            score -= 20
 
     try:
         domain = url.split("//")[1].split("/")[0]
         socket.gethostbyname(domain)
     except:
-        score -= 20
+        score -= 30
 
     return max(0,min(score,100))
-
 
 # ==============================
 # AUTH ROUTES
@@ -180,7 +181,6 @@ def login():
         if user:
 
             session["user"] = username
-
             return redirect(url_for("dashboard"))
 
         else:
@@ -194,9 +194,7 @@ def login():
 def logout():
 
     session.clear()
-
     return redirect(url_for("login"))
-
 
 # ==============================
 # MAIN ROUTES
@@ -204,7 +202,6 @@ def logout():
 
 @app.route("/")
 def home():
-
     return redirect(url_for("login"))
 
 
@@ -212,138 +209,78 @@ def home():
 def dashboard():
 
     if "user" not in session:
-
         return redirect(url_for("login"))
 
-    return render_template("index.html")
+    return render_template("dashboard.html")
 
+# ==============================
+# IMAGE UPLOAD ANALYSIS
+# ==============================
+
+@app.route("/upload", methods=["POST"])
+def upload():
+
+    file = request.files["image"]
+
+    filepath = os.path.join("static/uploads", file.filename)
+    file.save(filepath)
+
+    image_score, image_reason = image_trust_score(filepath)
+
+    return render_template(
+        "result.html",
+        image_score=image_score,
+        reasons=[image_reason]
+    )
 
 # ==============================
 # WEBSITE ANALYSIS
 # ==============================
 
-@app.route("/analyze",methods=["POST"])
+@app.route("/analyze", methods=["POST"])
 def analyze():
-
-    if "user" not in session:
-        return redirect(url_for("login"))
 
     url = request.form["url"]
 
-    if not url.startswith(("http://","https://")):
-        url = "https://" + url
+    # get website data
+    text, images = fetch_website_data(url)
 
-    text,images = fetch_website_data(url)
+    # text analysis
+    text_score = text_trust_score(text)
 
-    reasons = []
+    # image analysis
+    image_scores = []
 
+    for img in images:
+        try:
+            score, _ = image_trust_score(img)
+            image_scores.append(score)
+        except:
+            pass
 
-    # TEXT ANALYSIS
+    avg_image_score = sum(image_scores) / len(image_scores) if image_scores else 50
 
-    if text:
+    # behavior analysis
+    behavior_score = behavior_analysis(url)
 
-        vector = vectorizer.transform([text])
-
-        probabilities = model.predict_proba(vector)[0]
-
-        scam_prob = max(probabilities)
-
-        text_score = round(100*(1-scam_prob),2)
-
-        if scam_prob > 0.7:
-            reasons.append("Text resembles scam patterns")
-        else:
-            reasons.append("Text appears legitimate")
-
-    else:
-
-        text_score = 60
-        reasons.append("Text could not be analyzed")
-
-
-    # IMAGE ANALYSIS
-
-    image_score,image_reason = image_trust_score(url)
-
-    reasons.append(image_reason)
-
-
-    # BEHAVIOUR ANALYSIS
-
-    behaviour = behaviour_score(url)
-
-    if behaviour < 60:
-        reasons.append("Suspicious URL behaviour detected")
-    else:
-        reasons.append("URL structure appears normal")
-
-
-    # DANGEROUS DOMAIN CHECK
-
-    dangerous_tlds = [".xyz",".top",".click",".ru",".tk"]
-
-    for tld in dangerous_tlds:
-
-        if url.endswith(tld):
-
-            behaviour -= 30
-
-            reasons.append("High-risk domain extension detected")
-
-
-    # FINAL SCORE
-
-    final_score = round(
-
-        text_score*0.25 +
-
-        image_score*0.30 +
-
-        behaviour*0.45
-
-        ,2
-    )
-
-    final_score = max(0,min(100,final_score))
-
-
-    # RISK LEVEL
-
-    if final_score >= 80:
-
-        risk = "LOW RISK"
-
+    # final trust score
+    final_score = (
+    0.4 * behavior_score +
+    0.35 * text_score +
+    0.25 * avg_image_score
+)
+    if final_score >= 75:
+        label = "Low Risk"
     elif final_score >= 50:
-
-        risk = "MEDIUM RISK"
-
+        label = "Suspicious"
     else:
-
-        risk = "HIGH RISK"
-
-
+        label = "High Risk"
     return render_template(
-
         "result.html",
-
-        final_score=final_score,
-
         text_score=text_score,
-
-        image_score=image_score,
-
-        behaviour_score=behaviour,
-
-        risk=risk,
-
-        reasons=reasons
-
+        image_score=avg_image_score,
+        behavior_score=behavior_score,
+        final_score=final_score
     )
-
-
-# ==============================
-# RUN SERVER
-# ==============================
-
 if __name__ == "__main__":
     app.run(debug=True)

@@ -1,23 +1,52 @@
+
 <!DOCTYPE html>
 <html>
 <head>
     <title>TRUSTLENS Dashboard</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
+
 <body>
 
 <div class="dashboard-container">
-    <h2>Welcome, {{ session['user'] }}</h2>
-    <p>Enter a website URL to analyze trust level</p>
 
-    <form action="/analyze" method="POST">
-        <input type="text" name="url" placeholder="Enter website URL..." required>
-        <button type="submit">Analyze Website</button>
-    </form>
+    <h1>🔎 TRUSTLENS Dashboard</h1>
+    <p>Analyze suspicious websites using AI-based trust evaluation.</p>
+
+    <h3>Logged in as: {{ session['user'] }}</h3>
+
+    <hr>
+
+    <!-- URL ANALYSIS -->
+    <h2>Analyze Website</h2>
+
+<form action="/analyze" method="POST">
+    <input type="text" name="url" placeholder="Paste website URL here" required>
+
+    <button type="submit">Analyze Trust</button>
+</form>
+    <!-- HOW TRUSTLENS WORKS -->
+    <div style="background:#f4f4f4;padding:20px;border-radius:8px;width:92%;margin:auto;text-align:left;">
+
+        <h3>How TRUSTLENS Works:</h3>
+
+        <ul>
+            <li><b>Text Analysis (25%)</b> — Detects scam-related content using Machine Learning.</li>
+            <li><b>Image Analysis (30%)</b> — Evaluates reused or manipulated images.</li>
+            <li><b>Behaviour Analysis (45%)</b> — Checks URL structure, HTTPS, and domain validity.</li>
+        </ul>
+
+    </div>
 
     <br>
-    <button onclick="location.href='/logout'">Logout</button>
+
+    <button onclick="location.href='/logout'" 
+    style="width:92%;padding:12px;background:#444;color:white;border:none;border-radius:6px;font-size:16px;">
+        Logout
+    </button>
+
 </div>
 
 </body>
 </html>
+```
